@@ -15,6 +15,11 @@ Here's an example:
 
 {
 "input_path": "C:\\cactus_pics",
-"output_path": "C:\\cactus_movie",
+"output_path": "C:\\cactus_movie\\",
 "movie_name": "cactus.mp4"
 }
+
+Update: I happened upon an error trying to process more cactus: "Failed to load OpenH264 library: openh264-1.8.0-win64.dll".
+In the immortal words of Alan Turing, "Someth'n done broke". So I had to go here: https://github.com/cisco/openh264/releases
+and download http://ciscobinary.openh264.org/openh264-1.8.0-win64.dll.bz2. Then I had to Google what a .bz2 is. Then, extract
+it using 7-zip to the same folder that contained make_movie.py. And PRESTO! Works again.
