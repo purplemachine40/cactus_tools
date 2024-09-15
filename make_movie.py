@@ -29,7 +29,7 @@ def main():
     frame = cv2.imread(img_list[0])
 
     #Percent by which the image is resized
-    scale_percent = 25
+    scale_percent = movie_settings["image_scale_percent"]
 
     #Calculate the 50 percent of original dimensions
     width = int(frame.shape[1] * scale_percent / 100)
