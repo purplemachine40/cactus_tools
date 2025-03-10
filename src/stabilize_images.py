@@ -11,7 +11,7 @@ def main():
     if movie_settings.__len__() == 0:
        print("No settings file!")
        exit(0)
-    
+
     in_path = movie_settings["align_in_path"]
     out_path = movie_settings["align_out_path"]
 
@@ -29,7 +29,7 @@ def main():
             in_img_list.append(cv2.imread(full_img_path))
 
     if in_img_list.__len__() > 0:
-        processed_img_list = align_images(scale_images(in_img_list))
+        processed_img_list = align_images(in_img_list)
 
     if processed_img_list.__len__() > 0:
         for i in range(0, processed_img_list.__len__()):
@@ -37,68 +37,57 @@ def main():
             full_out_path = os.path.join(out_path, img_names[i])
             cv2.imwrite(full_out_path, processed_img_list[i])
 
-    # if(processed_img_list.__len__() > 0):
-    #     video_path = os.path.join(out_path, "cactus_video.jpg")        
-    #     create_video(processed_img_list, video_path, 10)
-    
     print("Done!")
-
-def scale_images(images):
-    resized_images = []
-    scale_percent = 0.25
-    width = int(images[0].shape[1] * scale_percent)
-    height = int(images[0].shape[0] * scale_percent)
-    dsize = (width, height)
-    for img in images:
-        print("Resizing image.")
-        resized_img = cv2.resize(img, dsize)
-        if resized_img is not None:
-            resized_images.append(resized_img)
-    
-    return resized_images
 
 def align_images(images):
     # Convert images to grayscale
     gray_images = [cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) for img in images]
-    
+
     # Select first image as reference
     reference = gray_images[0]
-    
+
     # Initialize ORB detector
     orb = cv2.ORB_create()
-    
+
     aligned_images = [images[0]]
-    
+
     for i in range(1, len(images)):
+        print("Aligning image.")
+
+        # Re-reference every 5 images.
+
+        if (i < len(images) - 1) and (i % 20 == 0):
+            reference = gray_images[i]
+
         # Detect keypoints and descriptors
         kp1, des1 = orb.detectAndCompute(reference, None)
         kp2, des2 = orb.detectAndCompute(gray_images[i], None)
-        
+
         # Match descriptors
         bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
         matches = bf.match(des1, des2)
-        
+
         # Sort matches by distance
         matches = sorted(matches, key=lambda x: x.distance)
-        
+
         # Select top matches
         good_matches = matches[:50]
-        
+
         # Visualize matches for the first pair of images
-        if i == 1:
-            visualize_matches(images[0], images[i], kp1, kp2, good_matches)
-        
+
+        # aligned_image = visualize_matches(images[0], images[i], kp1, kp2, good_matches)
+
         # Get matched keypoints
         src_pts = np.float32([kp1[m.queryIdx].pt for m in good_matches]).reshape(-1, 1, 2)
         dst_pts = np.float32([kp2[m.trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)
-        
+
         # Estimate transformation matrix
         M, _ = cv2.findHomography(dst_pts, src_pts, cv2.RANSAC, 5.0)
-        
+
         # Apply transformation
         aligned_image = cv2.warpPerspective(images[i], M, (images[i].shape[1], images[i].shape[0]))
         aligned_images.append(aligned_image)
-    
+
     return aligned_images
 
 def create_video(images, output_path, fps=10):
@@ -106,24 +95,26 @@ def create_video(images, output_path, fps=10):
     height, width, layers = images[0].shape
     fourcc = cv2.VideoWriter_fourcc(*'avc1')
     video = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
-    
+
     for image in images:
         video.write(image)
-    
+
     video.release()
 
 def visualize_matches(img1, img2, kp1, kp2, good_matches):
     # Create a copy of img1 to draw on
-    match_img = img1.copy()
-    
+    match_img = img2.copy()
+
     # Draw small crosses for good matches
     for match in good_matches:
         x, y = map(int, kp1[match.queryIdx].pt)
         cv2.drawMarker(match_img, (x, y), (0, 255, 0), cv2.MARKER_CROSS, 10, 2)
-    
+
+    return match_img
+
     # Save the image with matches
-    cv2.imwrite('matches_visualization.jpg', match_img)
-    print("Matches visualization saved as 'matches_visualization.jpg'")
+    # cv2.imwrite('matches_visualization.jpg', match_img)
+    # print("Matches visualization saved as 'matches_visualization.jpg'")
 
 
 def load_settings(settings_dir):
@@ -138,7 +129,7 @@ def get_json_file(json_path):
             js_dict = json.loads(file_contents)
     except:
         print("Error opening file at location: " + json_path)
-    
+
     return js_dict
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 import cv2
 import os
 import json
+import sys
 
 
 def main():
@@ -10,7 +11,7 @@ def main():
 
     if movie_settings.__len__() == 0:
         print("No settings file!")
-        exit(0)
+        sys.exit(1)
 
     path = movie_settings["input_path"]
     out_path = movie_settings["output_path"]
@@ -25,26 +26,29 @@ def main():
             full_img_path = os.path.join(path, img)
             img_list.append(full_img_path)
 
-    #Read first image to get size
-    frame = cv2.imread(img_list[0])
+    if len(img_list) > 0:
+        print("Number of input images: ", len(img_list))
+        #Read first image to get size
+        frame = cv2.imread(img_list[0])
+    else:
+        print("No images!")
+        sys.exit(1)
 
-    #Percent by which the image is resized
-    scale_percent = movie_settings["image_scale_percent"]
-
-    #Calculate the 50 percent of original dimensions
-    width = int(frame.shape[1] * scale_percent / 100)
-    height = int(frame.shape[0] * scale_percent / 100)
-
-    dsize = (width, height)
+    width = frame.shape[1]
+    height = frame.shape[0]
     fourcc = cv2.VideoWriter_fourcc(*'avc1')
     video = cv2.VideoWriter(out_video_full_path, fourcc, 10, (width, height))
 
     for img_path in img_list:
         print("Processing image " + img_path + "\n")
-        frame = cv2.imread(img_path)    
-        resized_frame = cv2.resize(frame, dsize)
-        if resized_frame is not None:  # Ensure the image is read correctly
-            video.write(resized_frame)
+        frame = cv2.imread(img_path)
+
+        # Ensure the image is read correctly
+
+        if frame is not None:
+            video.write(frame)
+        else:
+            print("Frame is blank!")
 
     video.release()
 
@@ -60,7 +64,7 @@ def get_json_file(json_path):
             js_dict = json.loads(file_contents)
     except:
         print("Error opening file at location: " + json_path)
-    
+
     return js_dict
 
 if __name__ == '__main__':
