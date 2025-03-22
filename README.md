@@ -25,5 +25,11 @@ This python script resizes the pictures in the raw_in_path, scaling them down by
 ## stabilize_images.py
 This python script runs a stabilization algorithm on the the images.
 
+## crop_cactus.py
+This python script attempts to mask the cactus.  Unlikely masking and cropping will work.
+
+## template_cactus.py
+This python script uses a cropped "template" image from the base of the cactus and finds the matching spot on each image.
+
 ## make_movie.py
 This python script makes a movie out of the stabilized cactus pictures.
