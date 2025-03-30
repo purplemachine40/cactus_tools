@@ -29,7 +29,9 @@ This python script runs a stabilization algorithm on the the images.
 This python script attempts to mask the cactus.  Unlikely masking and cropping will work.
 
 ## template_cactus.py
-This python script uses a cropped "template" image from the base of the cactus and finds the matching spot on each image.
+This python script uses a cropped "template" image from the base of the cactus and finds the matching spot on each image.  It then places
+the spots for all the images in the same pixel location on a white background and crops out the white background, leaving a series
+of stabilized cactus images.
 
 ## make_movie.py
 This python script makes a movie out of the stabilized cactus pictures.
