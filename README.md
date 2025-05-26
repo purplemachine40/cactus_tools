@@ -19,7 +19,7 @@ Here's an example:
 }
 ```
 
-## resize_pics.py
+## resize_images.py
 This python script resizes the pictures in the raw_in_path, scaling them down by image_scale_percent.
 
 ## stabilize_images.py
