@@ -58,10 +58,10 @@ def template_cactus(images, template):
     template_ht = template.shape[0]
     img_wt = images[0].shape[1]
     img_ht = images[0].shape[0]
-    background_wt = img_wt + 200
-    background_ht = img_ht + 200
-    base_x = 100
-    base_y = 100
+    background_wt = img_wt + 300
+    background_ht = img_ht + 300
+    base_x = 150
+    base_y = 150
     max_start_x = 0
     min_start_x = background_wt
     max_start_y = 0
@@ -105,8 +105,22 @@ def template_cactus(images, template):
         x_dif = template_loc[i][0] - template_loc[0][0]
         y_dif = template_loc[i][1] - template_loc[0][1]
         print("x_dif: %d, y_dif: %d" % (x_dif, y_dif))
-        placement_x = base_x - x_dif
-        placement_y = base_y - y_dif
+
+        # Might have a pic or two where the template did not work well, causing a larger than acceptable offset.
+        # Don't include those pics in the output.
+
+        if abs(x_dif) < base_x:
+            placement_x = base_x - x_dif
+        else:
+            print("x_dif of picture index %d is out of range." % i)
+            continue
+
+        if abs(y_dif) < base_y:
+            placement_y = base_y - y_dif
+        else:
+            print("y_dif of picture index %d is out of range." % i)
+            continue
+
         print("placement_x: %d, placement_y: %d" % (placement_x, placement_y))
         max_start_x = max(max_start_x, placement_x)
         max_start_y = max(max_start_y, placement_y)
